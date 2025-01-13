@@ -59,4 +59,6 @@ TODO
 
 - config file
 - daemon
-- Anything other than 10-minute latest?
+- anything other than 10-minute latest?
+- serde
+- fix documentation (links, errors etc.)

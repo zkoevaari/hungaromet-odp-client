@@ -6,14 +6,14 @@
     (see LICENSE.txt)
 */
 
-mod error;
-mod field;
-mod format;
+pub mod error;
+pub mod field;
+pub mod format;
 mod record;
 
 mod csv;
-mod zip;
 mod download;
+mod zip;
 
 pub fn hello() {
     println!("Hello World!");
