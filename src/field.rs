@@ -9,15 +9,17 @@
 //! Types representing CSV fields (i.e. columns) and related items.
 
 use self::field_properties::*;
+
 use crate::error::*;
+use crate::format::Delimiter;
 
 use std::fmt;
 use std::fmt::Display;
 
-mod field_properties;
+pub(crate) mod field_properties;
 
 #[cfg(test)]
-mod test;
+pub(crate) mod test;
 
 /// Stores a list of selected CSV `Field`s.
 ///
@@ -49,7 +51,7 @@ impl FieldConfig {
         values: bool,
         q: bool,
         eor: bool,
-        filter: Option<&FieldFilter>
+        filter: Option<&FieldFilter>,
     ) -> Self {
         Self {
             fields: FIELD_ARRAY
@@ -77,8 +79,44 @@ impl FieldConfig {
     }
 
     /// Tries to parse a CSV header line to extract the fields used.
-    pub fn from_header(header: &str) -> Result<Self, ParseHeaderError> {
-        todo!()
+    pub fn from_header(header: &str, delim: Delimiter) -> Result<Self, ParseHeaderError> {
+        if !header.chars().any(|ch| ch == *delim.as_ref()) {
+            return Err(ParseHeaderError::FoundNoDelimiters);
+        }
+
+        let mut fields: Vec<Field> = Vec::new();
+        for token in header.split(*delim.as_ref()).map(|t| t.trim()) {
+            match Field::try_from(token) {
+                Ok(f) => match fields.contains(&f) {
+                    false => fields.push(f),
+                    true => return Err(ParseHeaderError::FoundDuplicates(token.to_string())),
+                },
+                Err(e) => return Err(ParseHeaderError::UnknownField(e)),
+            }
+        }
+
+        match fields.first() {
+            Some(f) if *f == Field::Time => (),
+            _ => return Err(ParseHeaderError::MissingTime),
+        }
+
+        match fields.get(1) {
+            Some(f) if *f == Field::StationNumber => (),
+            _ => return Err(ParseHeaderError::MissingStationNumber),
+        }
+
+        let last_index = fields.len() - 1;
+        match fields.iter().position(|f| *f == Field::EOR) {
+            Some(i) if i != last_index => return Err(ParseHeaderError::InvalidEorPosition),
+            _ => (),
+        }
+
+        Ok(Self { fields })
+    }
+
+    /// Returns an iterator of the field list.
+    pub fn fields(&self) -> impl Iterator<Item = &Field> {
+        self.fields.iter()
     }
 }
 impl Default for FieldConfig {
@@ -96,26 +134,27 @@ pub struct FieldFilter {
 }
 impl FieldFilter {
     /// Constructs an instance by explicitly supplying the `Field`s to include and exclude.
-    pub fn new<T>(
+    pub fn new<T, U>(
         include_set: T,
-        exclude_set: T,
+        exclude_set: U,
     ) -> Option<Self>
     where
         T: IntoIterator<Item = Field>,
+        U: IntoIterator<Item = Field>,
     {
         let including: Vec<Field> = include_set.into_iter().collect();
         let excluding: Vec<Field> = exclude_set.into_iter().collect();
         if including.is_empty() && excluding.is_empty() {
             None
         } else {
-            Some(FieldFilter {including, excluding})
+            Some(FieldFilter { including, excluding })
         }
     }
 
     /// Tries to parse two comma-separated lists, supplied as strings (e.g. by the user).
     pub fn from_strs(
-        include_str: Option<&str>,
-        exclude_str: Option<&str>,
+        _include_str: Option<&str>,
+        _exclude_str: Option<&str>,
     ) -> Result<Option<Self>, ParseFieldFilterError> {
         todo!()
     }
@@ -125,6 +164,7 @@ impl FieldFilter {
 /// these can be used as possible elements in a `FieldFilter`.
 #[repr(u8)]
 #[allow(non_camel_case_types)]
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum Field {
     Time,
@@ -183,8 +223,36 @@ pub enum Field {
     Q_WaterTemp,
     EOR,
 }
+impl Field {
+    /// Title string representation of the field.
+    pub fn title(&self) -> &str {
+        FIELD_ARRAY[*self as usize].title
+    }
+
+    fn _field_type(&self) -> &FieldType {
+        &FIELD_ARRAY[*self as usize].field_type
+    }
+
+    /// Character width of field title including padding
+    /// (used with the optional `alignment` in `CsvFormat`)
+    pub fn width(&self) -> u16 {
+        FIELD_ARRAY[*self as usize].width
+    }
+}
 impl Display for Field {
+    /// Prints the field title.
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", FIELD_ARRAY[*self as usize].title)
+        write!(f, "{}", self.title())
+    }
+}
+impl TryFrom<&str> for Field {
+    type Error = ParseFieldError;
+
+    /// Tries to convert from a title string.
+    fn try_from(title: &str) -> Result<Self, Self::Error> {
+        match FIELD_ARRAY.into_iter().find(|fp| fp.title == title) {
+            Some(fp) => Ok(fp.field),
+            None => Err(ParseFieldError::new(title)),
+        }
     }
 }

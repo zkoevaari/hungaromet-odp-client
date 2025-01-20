@@ -19,9 +19,9 @@ use std::io::{BufRead, Write};
 ///
 /// If a `RecordFilter` is supplied, only basic checks are run for those lines that do not
 /// satisfy the filter, and the conversion step will be skipped.
-fn validate_csv(
-    reader: &impl BufRead,
-    record_filter: Option<&RecordFilter>,
+pub fn validate_csv(
+    _reader: &impl BufRead,
+    _record_filter: Option<&RecordFilter>,
 ) -> Result<(), ReadCsvError> {
     todo!()
 }
@@ -29,9 +29,9 @@ fn validate_csv(
 /// Converts each line in the input to a `RawRecord`.
 ///
 /// As an auxiliary output, returns the detected format definition as well.
-fn read_csv<T>(
-    reader: &impl BufRead,
-    record_filter: Option<&RecordFilter>,
+pub fn read_csv<T>(
+    _reader: &impl BufRead,
+    _record_filter: Option<&RecordFilter>,
 ) -> (T, CsvFormat)
 where
     T: Iterator<Item = Result<RawRecord, ReadCsvError>>,
@@ -40,20 +40,20 @@ where
 }
 
 /// Tries to write out the supplied records with the format specified.
-fn write_csv(
-    records: impl IntoIterator<Item = RawRecord>,
-    writer: &impl Write,
-    format: &CsvFormat,
+pub fn write_csv(
+    _records: impl IntoIterator<Item = RawRecord>,
+    _writer: &impl Write,
+    _format: &CsvFormat,
 ) -> Result<(), WriteCsvError> {
     todo!()
 }
 
 /// Convenience routine to combine `read_csv` and `write_csv`.
-fn convert_csv(
-    reader: &impl BufRead,
-    writer: &impl Write,
-    record_filter: Option<&RecordFilter>,
-    format: &CsvFormat,
+pub fn convert_csv(
+    _reader: &impl BufRead,
+    _writer: &impl Write,
+    _record_filter: Option<&RecordFilter>,
+    _format: &CsvFormat,
 ) -> Result<(), CsvError> {
     todo!()
 }

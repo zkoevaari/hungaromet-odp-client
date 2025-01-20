@@ -81,12 +81,12 @@ pub struct RawRecord {
 }
 impl RawRecord {
     /// Tries to parse a CSV line using the specified format.
-    fn from_csv(line: &str, format: CsvFormat) -> Result<Self, ParseRecordError> {
+    pub fn from_csv(_line: &str, _format: CsvFormat) -> Result<Self, ParseRecordError> {
         todo!()
     }
 
     /// Creates a CSV line by concatenating the fields according to the specified format.
-    fn to_csv(&self, format: CsvFormat) -> String {
+    pub fn to_csv(&self, _format: CsvFormat) -> String {
         todo!()
     }
 }
@@ -156,11 +156,17 @@ pub struct MetRecord {
     q_water_temp: Option<String>,
     eor: Option<String>,
 }
+impl Hash for MetRecord {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.time.hash(state);
+        self.station_number.hash(state);
+    }
+}
 impl TryFrom<RawRecord> for MetRecord {
     type Error = TryFromRawRecordError;
 
     /// String fields are moved, numeric fields are parsed.
-    fn try_from(value: RawRecord) -> Result<Self, Self::Error> {
+    fn try_from(_value: RawRecord) -> Result<Self, Self::Error> {
         todo!()
     }
 }
@@ -168,14 +174,8 @@ impl TryFrom<&RawRecord> for MetRecord {
     type Error = TryFromRawRecordError;
 
     /// String fields are copied, numeric fields are parsed.
-    fn try_from(value: &RawRecord) -> Result<Self, Self::Error> {
+    fn try_from(_value: &RawRecord) -> Result<Self, Self::Error> {
         todo!()
-    }
-}
-impl Hash for MetRecord {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.time.hash(state);
-        self.station_number.hash(state);
     }
 }
 
@@ -191,12 +191,15 @@ pub struct RecordFilter<'a> {
 impl<'a> RecordFilter<'a> {
     /// Tries to parse a comma-separated list of station numbers and names, supplied as a string
     /// (e.g. by the user).
-    fn from_str(filter_str: &'a str, invert: bool) -> Result<Option<Self>, ParseRecordFilterError> {
+    pub fn from_str(
+        _filter_str: &'a str,
+        _invert: bool,
+    ) -> Result<Option<Self>, ParseRecordFilterError> {
         todo!()
     }
 
     /// Function to use with `Iterator.filter`.
-    fn filter(rec: &RawRecord) -> bool {
+    pub fn filter(_rec: &RawRecord) -> bool {
         todo!()
     }
 }

@@ -19,9 +19,10 @@ ODP service, which can be found right at the ODP root directory.
 
 ## Current status ##
 
-Requirements have been drafted, see `TODO.md` for summary.
+Work is in progress, with `field` and `format` modules implemented. The rest
+of the API is in skeletal prototype stage.
 
-API skeletal prototype is ready.
+For a summary of the proposed requirements, see `TODO.md`.
 
 
 ## Further reading ##

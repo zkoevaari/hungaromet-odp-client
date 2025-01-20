@@ -15,10 +15,11 @@ pub struct FieldProperties {
     pub title: &'static str,
     pub field: Field,
     pub field_type: FieldType,
-    pub width: u8,
+    pub width: u16,
 }
 
 /// Categories of fields, used in filtering.
+#[allow(clippy::upper_case_acronyms)]
 pub enum FieldType {
     Mandatory,
     Info,

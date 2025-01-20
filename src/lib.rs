@@ -9,11 +9,11 @@
 pub mod error;
 pub mod field;
 pub mod format;
-mod record;
+pub mod record;
 
-mod csv;
-mod download;
-mod zip;
+pub mod csv;
+//~ pub mod download;
+//~ pub mod zip;
 
 pub fn hello() {
     println!("Hello World!");

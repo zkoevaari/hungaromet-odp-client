@@ -61,4 +61,5 @@ TODO
 - daemon
 - anything other than 10-minute latest?
 - serde
-- fix documentation (links, errors etc.)
+- fix documentation (links, errors/panics, aspell etc.)
+- code coverage analysis
